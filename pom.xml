@@ -20,6 +20,7 @@
     <properties>
         <slf4j.version>1.6.6</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
+        <logging.version>1.2</logging.version>
         <kryo.version>2.24.0</kryo.version>
         <netty.version>4.0.24.Final</netty.version>
         <guava.version>19.0</guava.version>
@@ -42,6 +43,11 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${logging.version}</version>
         </dependency>
         <!-- kryo序列化 -->
         <dependency>
@@ -67,7 +73,6 @@
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
         </dependency>
-
     </dependencies>
 
 </project>
