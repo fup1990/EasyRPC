@@ -5,9 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
- * Created by fupeng-ds on 2018/6/20.
+ * Created by fupeng-ds on 2018/7/6.
  */
-public class ServerHandler extends SimpleChannelInboundHandler<RemotingRequest> {
+public class ClientHandler extends SimpleChannelInboundHandler<RemotingRequest> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RemotingRequest msg) throws Exception {

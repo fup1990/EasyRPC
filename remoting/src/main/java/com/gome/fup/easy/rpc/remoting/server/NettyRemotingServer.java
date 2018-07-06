@@ -1,6 +1,6 @@
 package com.gome.fup.easy.rpc.remoting.server;
 
-import com.gome.fup.easy.rpc.remoting.RemotingService;
+import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.ServerHandler;
@@ -22,15 +22,15 @@ import java.net.InetSocketAddress;
 /**
  * netty 服务端
  */
-public class RemotingServer implements RemotingService {
-    private static final Logger log = LoggerFactory.getLogger(RemotingServer.class);
+public class NettyRemotingServer implements RemotingServer {
+    private static final Logger log = LoggerFactory.getLogger(NettyRemotingServer.class);
     private final ServerBootstrap bootstrap;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private DefaultEventExecutorGroup eventExecutorGroup;
     private int port;
 
-    public RemotingServer() {
+    public NettyRemotingServer() {
         this.bootstrap = new ServerBootstrap();
         this.bossGroup = new NioEventLoopGroup(1);
         this.workerGroup = new NioEventLoopGroup(8);
@@ -62,6 +62,7 @@ public class RemotingServer implements RemotingService {
             ChannelFuture channelFuture = this.bootstrap.bind().sync();
             InetSocketAddress address = (InetSocketAddress) channelFuture.channel().localAddress();
             this.port = address.getPort();
+            log.info("Netty Remoting Server has started, port is {}", this.port);
         } catch (InterruptedException e) {
             log.error("this.bootstrap.bind().sync() InterruptedException", e);
             throw new RuntimeException("this.bootstrap.bind().sync() InterruptedException", e);
