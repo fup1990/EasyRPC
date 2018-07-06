@@ -9,9 +9,9 @@ import com.gome.fup.easy.rpc.remoting.protocol.RemotingResponse;
 public interface RemotingClient {
 
     //同步发送消息
-    RemotingResponse invokeSync(String address, RemotingRequest request, int timeout) throws InterruptedException;
+    RemotingResponse sendSync(String address, RemotingRequest request, int timeout) throws InterruptedException;
 
     //异步发送消息
-    void invokeAsync(String address, RemotingRequest request, int timeout, RemotingCallback callback);
+    void sendAsync(String address, RemotingRequest request, int timeout, RemotingCallback callback);
 
 }

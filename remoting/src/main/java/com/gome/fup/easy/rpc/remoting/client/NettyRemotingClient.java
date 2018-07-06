@@ -58,7 +58,7 @@ public class NettyRemotingClient implements RemotingClient {
         return connect.channel();
     }
 
-    public RemotingResponse invokeSync(String address, RemotingRequest request, int timeout) throws InterruptedException {
+    public RemotingResponse sendSync(String address, RemotingRequest request, int timeout) throws InterruptedException {
         final RemotingResponse response = new RemotingResponse();
         Channel channel = getChannel(address);
         channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
@@ -75,7 +75,7 @@ public class NettyRemotingClient implements RemotingClient {
         return response;
     }
 
-    public void invokeAsync(String address, RemotingRequest request, int timeout, final RemotingCallback callback) {
+    public void sendAsync(String address, RemotingRequest request, int timeout, final RemotingCallback callback) {
         Channel channel = getChannel(address);
         channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
