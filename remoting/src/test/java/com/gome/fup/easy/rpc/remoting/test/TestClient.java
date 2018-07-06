@@ -15,7 +15,7 @@ public class TestClient {
         request.setHeaderCode(8);
         request.setBody("测试".getBytes());
         RemotingClient client = new NettyRemotingClient();
-        RemotingResponse response = client.invokeSync("localhost:10101", request, 10);
+        RemotingResponse response = client.sendSync("localhost:10101", request, 10);
         System.out.println(response.isSendOk());
     }
 
