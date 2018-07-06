@@ -10,8 +10,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class ServerHandler extends SimpleChannelInboundHandler<RemotingRequest> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RemotingRequest msg) throws Exception {
-
+    protected void channelRead0(ChannelHandlerContext ctx, RemotingRequest request) throws Exception {
+        System.out.println(request.getHeaderCode());
     }
 
 }

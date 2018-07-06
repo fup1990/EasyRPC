@@ -38,7 +38,6 @@ public class NettyRemotingClient implements RemotingClient {
         final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(8);
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.SO_KEEPALIVE, false)
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -48,14 +47,14 @@ public class NettyRemotingClient implements RemotingClient {
                                 .addLast(eventExecutorGroup,
                                         new EncoderHandler(),
                                         new DecoderHandler(),
-                                        new IdleStateHandler(0, 0, 120),
-                                        new ClientHandler());
+                                        new IdleStateHandler(0, 0, 120));
                     }
                 });
     }
 
     public Channel connect(String address) {
         ChannelFuture connect = bootstrap.connect(SocketAddressUtil.string2SocketAddress(address));
+        log.info("remoting client connect server, address is {}", address);
         return connect.channel();
     }
 

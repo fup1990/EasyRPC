@@ -9,6 +9,9 @@ public class RemotingRequest {
 
     private byte[] body;
 
+    public RemotingRequest() {
+    }
+
     public RemotingRequest(int headerCode, byte[] body) {
         this.headerCode = headerCode;
         this.body = body;
