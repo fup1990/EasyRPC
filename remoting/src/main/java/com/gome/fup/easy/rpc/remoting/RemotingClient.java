@@ -8,11 +8,6 @@ import com.gome.fup.easy.rpc.remoting.protocol.RemotingResponse;
  */
 public interface RemotingClient {
 
-    /**
-     * 建立连接
-     */
-    void connect(String address);
-
     //同步发送消息
     RemotingResponse invokeSync(String address, RemotingRequest request, int timeout) throws InterruptedException;
 

@@ -54,9 +54,9 @@ public class NettyRemotingClient implements RemotingClient {
                 });
     }
 
-    public void connect(String address) {
+    public Channel connect(String address) {
         ChannelFuture connect = bootstrap.connect(SocketAddressUtil.string2SocketAddress(address));
-        channelMap.put(address, connect.channel());
+        return connect.channel();
     }
 
     public RemotingResponse invokeSync(String address, RemotingRequest request, int timeout) throws InterruptedException {
@@ -90,8 +90,8 @@ public class NettyRemotingClient implements RemotingClient {
     private Channel getChannel(String address) {
         Channel channel = channelMap.get(address);
         if (channel == null) {
-            connect(address);
-            channel = channelMap.get(address);
+            channel = connect(address);
+            channelMap.put(address, channel);
         }
         return channel;
     }
