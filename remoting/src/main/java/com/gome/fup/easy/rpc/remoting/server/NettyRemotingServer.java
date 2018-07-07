@@ -3,12 +3,9 @@ package com.gome.fup.easy.rpc.remoting.server;
 import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
-import com.gome.fup.easy.rpc.remoting.handler.ServerHandler;
+import com.gome.fup.easy.rpc.remoting.protocol.RemotingMessage;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -82,5 +79,16 @@ public class NettyRemotingServer implements RemotingServer {
 
     public int getPort() {
         return port;
+    }
+
+    public class ServerHandler extends SimpleChannelInboundHandler<RemotingMessage> {
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, RemotingMessage msg) throws Exception {
+            System.out.println(msg.getHeaderCode());
+            RemotingMessage response = new RemotingMessage(msg.getMsgId(), 1, " world".getBytes());
+            ctx.channel().writeAndFlush(response);
+        }
+
     }
 }
