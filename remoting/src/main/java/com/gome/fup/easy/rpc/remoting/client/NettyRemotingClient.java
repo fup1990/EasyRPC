@@ -47,7 +47,8 @@ public class NettyRemotingClient implements RemotingClient {
                                 .addLast(eventExecutorGroup,
                                         new EncoderHandler(),
                                         new DecoderHandler(),
-                                        new IdleStateHandler(0, 0, 120));
+                                        new IdleStateHandler(0, 0, 120),
+                                        new ClientHandler());
                     }
                 });
     }
