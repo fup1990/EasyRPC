@@ -82,6 +82,7 @@ public class NettyRemotingClient implements RemotingClient {
                 }
             }
         });
+        log.info("response future is waiting fo response, msg id is {}", request.getMsgId());
         responseFuture.await(timeout);
         return responseFuture.getResponse();
     }
