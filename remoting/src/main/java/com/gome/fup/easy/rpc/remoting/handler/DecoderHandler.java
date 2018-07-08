@@ -5,8 +5,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-import java.nio.ByteBuffer;
-
 /**
  * Created by fupeng-ds on 2018/6/20.
  */
@@ -24,16 +22,18 @@ public class DecoderHandler extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        ByteBuffer buffer = in.nioBuffer();
-        //消息头
-        int code = buffer.getInt();
-        //消息大小
-        int size = buffer.getInt();
-        //消息ID
-        long msgId = buffer.getLong();
-        //消息内容
-        byte[] bytes = new byte[size];
-        buffer.get(bytes);
-        return new RemotingMessage(msgId, code, bytes);
+        if (in.isReadable()) {
+            //消息头
+            int code = in.readInt();
+            //消息大小
+            int size = in.readInt();
+            //消息ID
+            long msgId = in.readLong();
+            //消息内容
+            byte[] bytes = new byte[size];
+            in.readBytes(bytes);
+            return new RemotingMessage(msgId, code, bytes);
+        }
+        return null;
     }
 }
