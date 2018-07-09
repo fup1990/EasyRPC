@@ -1,5 +1,6 @@
 package com.gome.fup.easy.rpc.remoting.client;
 
+import com.gome.fup.easy.rpc.common.thread.EasyThreadFactory;
 import com.gome.fup.easy.rpc.common.utils.SocketAddressUtil;
 import com.gome.fup.easy.rpc.remoting.RemotingCallback;
 import com.gome.fup.easy.rpc.remoting.RemotingClient;
@@ -16,8 +17,7 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 import static com.gome.fup.easy.rpc.remoting.protocol.MessageType.*;
 
@@ -33,6 +33,8 @@ public class NettyRemotingClient implements RemotingClient {
     private ConcurrentMap<String, Channel> channelMap = new ConcurrentHashMap<String, Channel>();
 
     private ConcurrentMap<Long, ResponseFuture> responseFutureMap = new ConcurrentHashMap<Long, ResponseFuture>();
+
+    private ExecutorService callbackService;
 
     public NettyRemotingClient() {
         this.bootstrap = new Bootstrap();
@@ -53,6 +55,7 @@ public class NettyRemotingClient implements RemotingClient {
                                         new ClientHandler());
                     }
                 });
+        callbackService = Executors.newFixedThreadPool(8, new EasyThreadFactory("AsyncCallbackThread_"));
     }
 
     /**
@@ -160,14 +163,18 @@ public class NettyRemotingClient implements RemotingClient {
      * 处理异步请求
      * @param msg
      */
-    private void processAsync(RemotingMessage msg) {
-        ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
+    private void processAsync(final RemotingMessage msg) {
+        final ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
         if (responseFuture != null) {
-            RemotingResponse response = new RemotingResponse();
-            response.setHeaderCode(msg.getHeaderCode());
-            response.setBody(msg.getBody());
-            RemotingCallback callback = responseFuture.getCallback();
-            callback.call(response);
+            callbackService.submit(new Runnable() {
+                public void run() {
+                    RemotingResponse response = new RemotingResponse();
+                    response.setHeaderCode(msg.getHeaderCode());
+                    response.setBody(msg.getBody());
+                    RemotingCallback callback = responseFuture.getCallback();
+                    callback.call(response);
+                }
+            });
         }
     }
 
