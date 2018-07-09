@@ -55,6 +55,11 @@ public class NettyRemotingClient implements RemotingClient {
                 });
     }
 
+    /**
+     * 建立连接
+     * @param address
+     * @return
+     */
     public Channel connect(String address) {
         ChannelFuture connect = bootstrap.connect(SocketAddressUtil.string2SocketAddress(address));
         if (connect != null) {
@@ -68,6 +73,14 @@ public class NettyRemotingClient implements RemotingClient {
         return null;
     }
 
+    /**
+     * 同步发送消息
+     * @param address
+     * @param request
+     * @param timeout
+     * @return
+     * @throws InterruptedException
+     */
     public RemotingResponse sendSync(String address, RemotingRequest request, int timeout) throws InterruptedException {
         final ResponseFuture responseFuture = new ResponseFuture();
         responseFutureMap.put(request.getMsgId(), responseFuture);
@@ -87,6 +100,13 @@ public class NettyRemotingClient implements RemotingClient {
         return responseFuture.getResponse();
     }
 
+    /**
+     * 异步发送消息
+     * @param address
+     * @param request
+     * @param timeout
+     * @param callback
+     */
     public void sendAsync(String address, RemotingRequest request, int timeout, final RemotingCallback callback) {
         final ResponseFuture responseFuture = new ResponseFuture();
         responseFuture.setCallback(callback);
@@ -104,6 +124,11 @@ public class NettyRemotingClient implements RemotingClient {
         });
     }
 
+    /**
+     * 获取连接
+     * @param address
+     * @return
+     */
     private Channel getChannel(String address) {
         Channel channel = channelMap.get(address);
         if (channel == null) {
@@ -131,6 +156,10 @@ public class NettyRemotingClient implements RemotingClient {
 
     }
 
+    /**
+     * 处理异步请求
+     * @param msg
+     */
     private void processAsync(RemotingMessage msg) {
         ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
         if (responseFuture != null) {
@@ -142,6 +171,10 @@ public class NettyRemotingClient implements RemotingClient {
         }
     }
 
+    /**
+     * 处理同步请求
+     * @param msg
+     */
     private void processSync(RemotingMessage msg) {
         ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
         if (responseFuture != null) {
