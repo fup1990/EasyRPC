@@ -34,6 +34,6 @@ public class DecoderHandler extends LengthFieldBasedFrameDecoder {
             buf.readBytes(bytes);
             return new RemotingMessage(msgId, code, bytes);
         }
-        return null;
+        return super.decode(ctx, buf);
     }
 }
