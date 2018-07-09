@@ -55,7 +55,7 @@ public class NettyRemotingClient implements RemotingClient {
                                         new ClientHandler());
                     }
                 });
-        callbackService = Executors.newFixedThreadPool(8, new EasyThreadFactory("AsyncCallbackThread_"));
+        callbackService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new EasyThreadFactory("AsyncCallbackThread_"));
     }
 
     /**
