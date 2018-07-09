@@ -23,6 +23,7 @@ public class DecoderHandler extends LengthFieldBasedFrameDecoder {
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
         if (buf.isReadable()) {
+            int type = buf.readInt();
             //消息头
             int code = buf.readInt();
             //消息大小
@@ -32,7 +33,7 @@ public class DecoderHandler extends LengthFieldBasedFrameDecoder {
             //消息内容
             byte[] bytes = new byte[size];
             buf.readBytes(bytes);
-            return new RemotingMessage(msgId, code, bytes);
+            return new RemotingMessage(msgId, type, code, bytes);
         }
         return super.decode(ctx, buf);
     }

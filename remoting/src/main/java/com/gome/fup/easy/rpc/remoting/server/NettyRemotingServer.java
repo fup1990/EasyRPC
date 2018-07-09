@@ -85,9 +85,8 @@ public class NettyRemotingServer implements RemotingServer {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RemotingMessage msg) throws Exception {
-            System.out.println(msg.getHeaderCode());
-            RemotingMessage response = new RemotingMessage(msg.getMsgId(), 1, " world".getBytes());
-            ctx.channel().writeAndFlush(response);
+            msg.setBody("hello world!".getBytes());
+            ctx.channel().writeAndFlush(msg);
         }
 
     }

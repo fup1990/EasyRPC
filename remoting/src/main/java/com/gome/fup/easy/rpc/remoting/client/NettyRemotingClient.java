@@ -5,10 +5,7 @@ import com.gome.fup.easy.rpc.remoting.RemotingCallback;
 import com.gome.fup.easy.rpc.remoting.RemotingClient;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
-import com.gome.fup.easy.rpc.remoting.protocol.RemotingMessage;
-import com.gome.fup.easy.rpc.remoting.protocol.RemotingRequest;
-import com.gome.fup.easy.rpc.remoting.protocol.RemotingResponse;
-import com.gome.fup.easy.rpc.remoting.protocol.ResponseFuture;
+import com.gome.fup.easy.rpc.remoting.protocol.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.gome.fup.easy.rpc.remoting.protocol.MessageType.*;
+
 /**
  * Created by fupeng-ds on 2018/7/6.
  */
@@ -33,7 +32,7 @@ public class NettyRemotingClient implements RemotingClient {
 
     private ConcurrentMap<String, Channel> channelMap = new ConcurrentHashMap<String, Channel>();
 
-    private ConcurrentHashMap<Long, ResponseFuture> responseFutureMap = new ConcurrentHashMap<Long, ResponseFuture>();
+    private ConcurrentMap<Long, ResponseFuture> responseFutureMap = new ConcurrentHashMap<Long, ResponseFuture>();
 
     public NettyRemotingClient() {
         this.bootstrap = new Bootstrap();
@@ -73,6 +72,7 @@ public class NettyRemotingClient implements RemotingClient {
         final ResponseFuture responseFuture = new ResponseFuture();
         responseFutureMap.put(request.getMsgId(), responseFuture);
         Channel channel = getChannel(address);
+        request.setType(SYNC);
         channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
@@ -88,13 +88,17 @@ public class NettyRemotingClient implements RemotingClient {
     }
 
     public void sendAsync(String address, RemotingRequest request, int timeout, final RemotingCallback callback) {
+        final ResponseFuture responseFuture = new ResponseFuture();
+        responseFuture.setCallback(callback);
+        responseFutureMap.put(request.getMsgId(), responseFuture);
         Channel channel = getChannel(address);
+        request.setType(ASYNC);
         channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    if (callback != null) {
-                        callback.call();
-                    }
+                    responseFuture.setSendOk(true);
+                } else {
+                    responseFuture.setSendOk(false);
                 }
             }
         });
@@ -113,18 +117,39 @@ public class NettyRemotingClient implements RemotingClient {
 
     public class ClientHandler extends SimpleChannelInboundHandler<RemotingMessage> {
 
-        private final Logger log = LoggerFactory.getLogger(ClientHandler.class);
-
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RemotingMessage msg) throws Exception {
-            ResponseFuture responseFuture = responseFutureMap.get(msg.getMsgId());
+            switch (msg.getType()) {
+                case SYNC:
+                    processSync(msg);
+                    break;
+                case ASYNC:
+                    processAsync(msg);
+                    break;
+            }
+        }
+
+    }
+
+    private void processAsync(RemotingMessage msg) {
+        ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
+        if (responseFuture != null) {
+            RemotingResponse response = new RemotingResponse();
+            response.setHeaderCode(msg.getHeaderCode());
+            response.setBody(msg.getBody());
+            RemotingCallback callback = responseFuture.getCallback();
+            callback.call(response);
+        }
+    }
+
+    private void processSync(RemotingMessage msg) {
+        ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
+        if (responseFuture != null) {
             RemotingResponse response = new RemotingResponse();
             response.setHeaderCode(msg.getHeaderCode());
             response.setBody(msg.getBody());
             responseFuture.setResponse(response);
             responseFuture.countDown();
-            log.info("response future count down, time:" + System.currentTimeMillis());
         }
-
     }
 }

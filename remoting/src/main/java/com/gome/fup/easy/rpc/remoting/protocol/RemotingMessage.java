@@ -1,11 +1,15 @@
 package com.gome.fup.easy.rpc.remoting.protocol;
 
+import java.io.Serializable;
+
 /**
  * Created by fupeng on 2018/7/7.
  */
-public class RemotingMessage {
+public class RemotingMessage implements Serializable{
 
     private long msgId;
+
+    private int type;
 
     private int headerCode;
 
@@ -14,10 +18,11 @@ public class RemotingMessage {
     public RemotingMessage() {
     }
 
-    public RemotingMessage(long msgId, int headerCode, byte[] body) {
+    public RemotingMessage(long msgId, int type, int headerCode, byte[] body) {
         this.msgId = msgId;
         this.headerCode = headerCode;
         this.body = body;
+        this.type = type;
     }
 
     public long getMsgId() {
@@ -48,4 +53,11 @@ public class RemotingMessage {
         return this.body.length;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 }

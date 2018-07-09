@@ -12,6 +12,8 @@ public class EncoderHandler extends MessageToByteEncoder<RemotingMessage> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, RemotingMessage request, ByteBuf buf) throws Exception {
+        //消息类型
+        buf.writeInt(request.getType());
         //请求头类型
         buf.writeInt(request.getHeaderCode());
         //消息长度
