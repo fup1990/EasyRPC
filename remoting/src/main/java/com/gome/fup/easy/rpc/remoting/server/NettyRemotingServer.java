@@ -4,7 +4,6 @@ import com.gome.fup.easy.rpc.remoting.AbstractRemotingService;
 import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
-import com.gome.fup.easy.rpc.remoting.process.ServerProcessor;
 import com.gome.fup.easy.rpc.remoting.protocol.RemotingRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -40,7 +39,6 @@ public class NettyRemotingServer extends AbstractRemotingService implements Remo
      * 启动netty服务
      */
     public void start() {
-        registerProcessors();
         this.bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
@@ -67,10 +65,6 @@ public class NettyRemotingServer extends AbstractRemotingService implements Remo
             log.error("this.bootstrap.bind().sync() InterruptedException", e);
             throw new RuntimeException("this.bootstrap.bind().sync() InterruptedException", e);
         }
-    }
-
-    private void registerProcessors() {
-        registerProcessor(1, new ServerProcessor());
     }
 
     /**

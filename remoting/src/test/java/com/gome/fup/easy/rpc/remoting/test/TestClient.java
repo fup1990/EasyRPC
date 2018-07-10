@@ -21,11 +21,11 @@ public class TestClient {
         RemotingClient client = new NettyRemotingClient();
         RemotingResponse response = client.sendSync("localhost:10101", request, 10);
         System.out.println(response.getHeaderCode() + new String(response.getBody()));
-//        client.sendAsync("localhost:10101", request, 10, new RemotingCallback() {
-//            public void call(RemotingResponse response) {
-//                System.out.println(response.getHeaderCode() + new String(response.getBody()));
-//            }
-//        });
+        client.sendAsync("localhost:10101", request, 10, new RemotingCallback() {
+            public void call(RemotingResponse response) {
+                System.out.println(response.getHeaderCode() + new String(response.getBody()));
+            }
+        });
     }
 
 }

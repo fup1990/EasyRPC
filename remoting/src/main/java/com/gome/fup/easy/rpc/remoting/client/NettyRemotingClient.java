@@ -5,10 +5,9 @@ import com.gome.fup.easy.rpc.common.utils.SocketAddressUtil;
 import com.gome.fup.easy.rpc.remoting.AbstractRemotingService;
 import com.gome.fup.easy.rpc.remoting.RemotingCallback;
 import com.gome.fup.easy.rpc.remoting.RemotingClient;
+import com.gome.fup.easy.rpc.remoting.config.RemotingConfig;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
-import com.gome.fup.easy.rpc.remoting.process.ClientProcessor;
-import com.gome.fup.easy.rpc.remoting.process.ServerProcessor;
 import com.gome.fup.easy.rpc.remoting.protocol.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -58,9 +57,8 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
                                         new ClientHandler());
                     }
                 });
-        callbackService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+        callbackService = Executors.newFixedThreadPool(RemotingConfig.THREAD_NUM,
                 new EasyThreadFactory("AsyncCallbackThread_"));
-        registerProcessors();
     }
 
     /**
@@ -211,9 +209,5 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
                 callback.call(response);
             }
         });
-    }
-
-    private void registerProcessors() {
-        registerProcessor(1, new ClientProcessor());
     }
 }
