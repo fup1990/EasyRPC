@@ -1,5 +1,6 @@
 package com.gome.fup.easy.rpc.remoting.server;
 
+import com.gome.fup.easy.rpc.remoting.AbstractRemotingService;
 import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
@@ -19,7 +20,7 @@ import java.net.InetSocketAddress;
 /**
  * netty 服务端
  */
-public class NettyRemotingServer implements RemotingServer {
+public class NettyRemotingServer extends AbstractRemotingService implements RemotingServer {
     private static final Logger log = LoggerFactory.getLogger(NettyRemotingServer.class);
     private final ServerBootstrap bootstrap;
     private final EventLoopGroup bossGroup;

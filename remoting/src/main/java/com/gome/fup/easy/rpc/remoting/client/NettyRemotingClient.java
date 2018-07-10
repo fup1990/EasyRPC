@@ -2,6 +2,7 @@ package com.gome.fup.easy.rpc.remoting.client;
 
 import com.gome.fup.easy.rpc.common.thread.EasyThreadFactory;
 import com.gome.fup.easy.rpc.common.utils.SocketAddressUtil;
+import com.gome.fup.easy.rpc.remoting.AbstractRemotingService;
 import com.gome.fup.easy.rpc.remoting.RemotingCallback;
 import com.gome.fup.easy.rpc.remoting.RemotingClient;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
@@ -24,7 +25,7 @@ import static com.gome.fup.easy.rpc.remoting.protocol.MessageType.*;
 /**
  * Created by fupeng-ds on 2018/7/6.
  */
-public class NettyRemotingClient implements RemotingClient {
+public class NettyRemotingClient extends AbstractRemotingService implements RemotingClient {
 
     private static final Logger log = LoggerFactory.getLogger(NettyRemotingClient.class);
 
@@ -55,7 +56,8 @@ public class NettyRemotingClient implements RemotingClient {
                                         new ClientHandler());
                     }
                 });
-        callbackService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new EasyThreadFactory("AsyncCallbackThread_"));
+        callbackService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+                new EasyThreadFactory("AsyncCallbackThread_"));
     }
 
     /**
@@ -98,7 +100,6 @@ public class NettyRemotingClient implements RemotingClient {
                 }
             }
         });
-        log.info("response future is waiting fo response, msg id is {}", request.getMsgId());
         responseFuture.await(timeout);
         return responseFuture.getResponse();
     }

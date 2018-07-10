@@ -1,6 +1,6 @@
 package com.gome.fup.easy.rpc.remoting;
 
-public interface RemotingServer {
+public interface RemotingServer extends RemotingService {
 
     void start();
 
