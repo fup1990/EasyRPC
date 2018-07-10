@@ -23,11 +23,12 @@ public abstract class AbstractRemotingService {
 
     public void registerProcessor(int requestCode, RequestProcessor processor) {
         processorMap.put(requestCode, processor);
+        log.info("register processor requestCode is {}, RequestProcessor is {}", requestCode, processor.getClass().getName());
     }
 
     public RemotingResponse processRequest(final ChannelHandlerContext ctx, final RemotingRequest request) throws Exception {
         final RequestProcessor processor = processorMap.get(request.getHeaderCode());
-        if (processor == null) {
+        if (processor != null) {
             Future<RemotingResponse> future = executorService.submit(new Callable<RemotingResponse>() {
                 public RemotingResponse call() throws Exception {
                     return processor.processRequest(ctx, request);

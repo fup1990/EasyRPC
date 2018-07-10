@@ -24,7 +24,7 @@ public class NameServer {
 
     private void registerProcessor() {
         this.remotingServer.registerProcessor(RequestHeaderCode.REGISTER_PROVIDER_CODE, new RegisterProviderRequestProcessor());
-        this.remotingServer.registerProcessor(RequestHeaderCode.REGISTER_PROVIDER_CODE, new PullProviderRequestProcessor());
+        this.remotingServer.registerProcessor(RequestHeaderCode.PULL_PROVIDER_CODE, new PullProviderRequestProcessor());
     }
 
 }
