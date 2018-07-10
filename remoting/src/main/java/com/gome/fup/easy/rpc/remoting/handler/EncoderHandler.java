@@ -1,6 +1,7 @@
 package com.gome.fup.easy.rpc.remoting.handler;
 
 import com.gome.fup.easy.rpc.remoting.protocol.RemotingMessage;
+import com.gome.fup.easy.rpc.remoting.protocol.RemotingRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -8,10 +9,10 @@ import io.netty.handler.codec.MessageToByteEncoder;
 /**
  * Created by fupeng-ds on 2018/6/20.
  */
-public class EncoderHandler extends MessageToByteEncoder<RemotingMessage> {
+public class EncoderHandler extends MessageToByteEncoder<RemotingRequest> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RemotingMessage request, ByteBuf buf) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, RemotingRequest request, ByteBuf buf) throws Exception {
         //消息类型
         buf.writeInt(request.getType());
         //请求头类型

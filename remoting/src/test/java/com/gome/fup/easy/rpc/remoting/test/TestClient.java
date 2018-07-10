@@ -16,14 +16,16 @@ public class TestClient {
         Snowflake snowflake = new Snowflake();
         RemotingRequest request = new RemotingRequest();
         request.setMsgId(snowflake.nextId());
-        request.setHeaderCode(8);
+        request.setHeaderCode(1);
         request.setBody("测试".getBytes());
         RemotingClient client = new NettyRemotingClient();
-        client.sendAsync("localhost:10101", request, 10, new RemotingCallback() {
-            public void call(RemotingResponse response) {
-                System.out.println(response.getHeaderCode() + new String(response.getBody()));
-            }
-        });
+        RemotingResponse response = client.sendSync("localhost:10101", request, 10);
+        System.out.println(response.getHeaderCode() + new String(response.getBody()));
+//        client.sendAsync("localhost:10101", request, 10, new RemotingCallback() {
+//            public void call(RemotingResponse response) {
+//                System.out.println(response.getHeaderCode() + new String(response.getBody()));
+//            }
+//        });
     }
 
 }

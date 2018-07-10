@@ -1,6 +1,7 @@
 package com.gome.fup.easy.rpc.remoting.handler;
 
 import com.gome.fup.easy.rpc.remoting.protocol.RemotingMessage;
+import com.gome.fup.easy.rpc.remoting.protocol.RemotingRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -33,7 +34,7 @@ public class DecoderHandler extends LengthFieldBasedFrameDecoder {
             //消息内容
             byte[] bytes = new byte[size];
             buf.readBytes(bytes);
-            return new RemotingMessage(msgId, type, code, bytes);
+            return new RemotingRequest(msgId, type, code, bytes);
         }
         return super.decode(ctx, buf);
     }

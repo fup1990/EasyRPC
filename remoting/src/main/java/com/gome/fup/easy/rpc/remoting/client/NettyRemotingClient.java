@@ -7,6 +7,8 @@ import com.gome.fup.easy.rpc.remoting.RemotingCallback;
 import com.gome.fup.easy.rpc.remoting.RemotingClient;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
+import com.gome.fup.easy.rpc.remoting.process.ClientProcessor;
+import com.gome.fup.easy.rpc.remoting.process.ServerProcessor;
 import com.gome.fup.easy.rpc.remoting.protocol.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -58,6 +60,7 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
                 });
         callbackService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new EasyThreadFactory("AsyncCallbackThread_"));
+        registerProcessors();
     }
 
     /**
@@ -144,16 +147,16 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
         return channel;
     }
 
-    public class ClientHandler extends SimpleChannelInboundHandler<RemotingMessage> {
+    public class ClientHandler extends SimpleChannelInboundHandler<RemotingRequest> {
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, RemotingMessage msg) throws Exception {
+        protected void channelRead0(ChannelHandlerContext ctx, RemotingRequest msg) throws Exception {
             switch (msg.getType()) {
                 case SYNC:
-                    processSync(msg);
+                    processSync(ctx, msg);
                     break;
                 case ASYNC:
-                    processAsync(msg);
+                    processAsync(ctx, msg);
                     break;
             }
         }
@@ -164,18 +167,21 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
      * 处理异步请求
      * @param msg
      */
-    private void processAsync(final RemotingMessage msg) {
+    private void processAsync(final ChannelHandlerContext ctx, final RemotingRequest msg) {
         final ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
         if (responseFuture != null) {
-            callbackService.submit(new Runnable() {
-                public void run() {
-                    RemotingResponse response = new RemotingResponse();
-                    response.setHeaderCode(msg.getHeaderCode());
-                    response.setBody(msg.getBody());
-                    RemotingCallback callback = responseFuture.getCallback();
-                    callback.call(response);
-                }
-            });
+            RemotingResponse response = null;
+            try {
+                response = processRequest(ctx, msg);
+            } catch (Exception e) {
+                log.error("process request error!", e);
+                throw new RuntimeException(e);
+            }
+            if (response != null) {
+                final RemotingCallback callback = responseFuture.getCallback();
+                processCallback(response, callback);
+            }
+
         }
     }
 
@@ -183,14 +189,31 @@ public class NettyRemotingClient extends AbstractRemotingService implements Remo
      * 处理同步请求
      * @param msg
      */
-    private void processSync(RemotingMessage msg) {
+    private void processSync(ChannelHandlerContext ctx, RemotingRequest msg) {
         ResponseFuture responseFuture = responseFutureMap.remove(msg.getMsgId());
         if (responseFuture != null) {
-            RemotingResponse response = new RemotingResponse();
-            response.setHeaderCode(msg.getHeaderCode());
-            response.setBody(msg.getBody());
-            responseFuture.setResponse(response);
-            responseFuture.countDown();
+            RemotingResponse response;
+            try {
+                response = processRequest(ctx, msg);
+                responseFuture.setResponse(response);
+            } catch (Exception e) {
+                log.error("process request error!", e);
+                throw new RuntimeException(e);
+            } finally {
+                responseFuture.countDown();
+            }
         }
+    }
+
+    private void processCallback(final RemotingResponse response, final RemotingCallback callback) {
+        callbackService.submit(new Runnable() {
+            public void run() {
+                callback.call(response);
+            }
+        });
+    }
+
+    private void registerProcessors() {
+        registerProcessor(1, new ClientProcessor());
     }
 }

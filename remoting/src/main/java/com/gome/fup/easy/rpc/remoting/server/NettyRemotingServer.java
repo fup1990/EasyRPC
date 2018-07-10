@@ -4,7 +4,8 @@ import com.gome.fup.easy.rpc.remoting.AbstractRemotingService;
 import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.handler.DecoderHandler;
 import com.gome.fup.easy.rpc.remoting.handler.EncoderHandler;
-import com.gome.fup.easy.rpc.remoting.protocol.RemotingMessage;
+import com.gome.fup.easy.rpc.remoting.process.ServerProcessor;
+import com.gome.fup.easy.rpc.remoting.protocol.RemotingRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -39,6 +40,7 @@ public class NettyRemotingServer extends AbstractRemotingService implements Remo
      * 启动netty服务
      */
     public void start() {
+        registerProcessors();
         this.bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
@@ -67,6 +69,10 @@ public class NettyRemotingServer extends AbstractRemotingService implements Remo
         }
     }
 
+    private void registerProcessors() {
+        registerProcessor(1, new ServerProcessor());
+    }
+
     /**
      * 关闭资源
      */
@@ -82,12 +88,11 @@ public class NettyRemotingServer extends AbstractRemotingService implements Remo
         return port;
     }
 
-    public class ServerHandler extends SimpleChannelInboundHandler<RemotingMessage> {
+    public class ServerHandler extends SimpleChannelInboundHandler<RemotingRequest> {
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, RemotingMessage msg) throws Exception {
-            msg.setBody("hello world!".getBytes());
-            ctx.channel().writeAndFlush(msg);
+        protected void channelRead0(ChannelHandlerContext ctx, RemotingRequest msg) throws Exception {
+            processRequest(ctx, msg);
         }
 
     }
