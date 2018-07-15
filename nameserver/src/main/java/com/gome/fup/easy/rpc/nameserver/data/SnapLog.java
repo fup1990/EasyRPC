@@ -18,8 +18,6 @@ public class SnapLog {
 
     private static final Logger log = LoggerFactory.getLogger(SnapLog.class);
 
-    private ByteBuffer buffer = ByteBuffer.allocate(1024);
-
     private FileChannel channel;
 
     private RandomAccessFile file;
@@ -47,10 +45,16 @@ public class SnapLog {
 
     public boolean appendMessage(byte[] bytes) {
         boolean flag = false;
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
         buffer.put(bytes);
         buffer.flip();
         try {
-            commit();
+            long pos = writePosition.get();
+            int length = buffer.limit();
+            channel.position(pos);
+            channel.write(buffer);
+            buffer.compact();
+            writePosition.addAndGet(length);
             flag = true;
         } catch (Exception e) {
             log.error("append message fail", e);
@@ -73,15 +77,6 @@ public class SnapLog {
             log.error("read message fail", e);
         }
         return bytes;
-    }
-
-    public void commit() throws IOException {
-        long pos = writePosition.get();
-        int length = buffer.limit();
-        channel.position(pos);
-        channel.write(buffer);
-        buffer.compact();
-        writePosition.addAndGet(length);
     }
 
 
