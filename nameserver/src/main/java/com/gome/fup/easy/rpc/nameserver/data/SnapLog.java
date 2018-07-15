@@ -58,6 +58,23 @@ public class SnapLog {
         return flag;
     }
 
+    public byte[] readMessage(long pos, int size) {
+        byte[] bytes = null;
+        ByteBuffer buffer = ByteBuffer.allocate(size);
+        try {
+            channel.read(buffer, pos);
+            buffer.flip();
+            int limit = buffer.limit();
+            bytes = new byte[limit];
+            while (buffer.hasRemaining()) {
+                buffer.get(bytes);
+            }
+        } catch (IOException e) {
+            log.error("read message fail", e);
+        }
+        return bytes;
+    }
+
     public void commit() throws IOException {
         long pos = writePosition.get();
         int length = buffer.limit();

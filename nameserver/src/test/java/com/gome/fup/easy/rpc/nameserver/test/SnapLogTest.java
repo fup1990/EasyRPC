@@ -9,8 +9,10 @@ public class SnapLogTest {
 
     public static void main(String[] args) {
         SnapLog snapLog = new SnapLog();
-        boolean flag = snapLog.appendMessage("hello world".getBytes());
-        System.out.println(flag);
+//        snapLog.appendMessage("def456".getBytes());
+//        snapLog.appendMessage("123abc".getBytes());
+        byte[] bytes = snapLog.readMessage(10, 20);
+        System.out.println(new String(bytes));
     }
 
 }
