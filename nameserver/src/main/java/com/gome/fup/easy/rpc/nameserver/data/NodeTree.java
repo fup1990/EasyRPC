@@ -29,7 +29,7 @@ public class NodeTree {
         return get(zxid, root);
     }
 
-    public Node get(long zxid, Node node) {
+    private Node get(long zxid, Node node) {
         if (node == null) {
             return null;
         }
@@ -91,7 +91,10 @@ public class NodeTree {
 
     // TODO 删除节点
     public Node remove(long zxid) {
-        return null;
+        Node node = get(zxid);
+        fixRemove(node);
+        size.decrementAndGet();
+        return node;
     }
 
     // TODO 添加之后修复树结构
