@@ -53,14 +53,14 @@ public class NodeTree {
     }
 
     public void put(Node node) {
-        if (node != null) {
-            if (root == null) {
-                node.setColor(BLACK);
-                root = node;
-            } else {
-                put(root, node);
-            }
+        if (root == null) {
+            node.setColor(BLACK);
+            root = node;
+        } else {
+            put(root, node);
+            fixInsert(node);
         }
+        size.incrementAndGet();
     }
 
     private void put(Node parent, Node node) {
@@ -84,9 +84,7 @@ public class NodeTree {
                     put(right, node);
                 }
             }
-            fixInsert(node);
         }
-        size.incrementAndGet();
     }
 
     // TODO 删除节点
@@ -99,6 +97,27 @@ public class NodeTree {
 
     // TODO 添加之后修复树结构
     private void fixInsert(Node node) {
+        Node parent = node.getParent();
+        if (parent.isRed()) {     //只有当父节点是红色时，才需要进行修复
+            Node uncle = node.getUncle();
+            Node ancestor = parent.getParent();
+            if (uncle != null && uncle.isRed()) {                    //叔叔节点是红色
+                parent.setColor(BLACK);
+                uncle.setColor(BLACK);
+                ancestor.setColor(RED);
+                fixInsert(ancestor);
+            } else {                                //叔叔节点是黑色的
+                if (node == parent.getRight()) {     //当前节点是父节点的右节点
+                    rotatingLeft(parent);
+                    fixInsert(parent);
+                } else {
+                    parent.setColor(BLACK);
+                    ancestor.setColor(RED);
+                    rotatingRight(ancestor);
+                    node.getRoot().setColor(BLACK);
+                }
+            }
+        }
     }
 
     // TODO 删除之后修复树结构
