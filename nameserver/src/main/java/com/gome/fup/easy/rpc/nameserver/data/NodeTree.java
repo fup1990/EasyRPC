@@ -1,5 +1,7 @@
 package com.gome.fup.easy.rpc.nameserver.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -98,24 +100,39 @@ public class NodeTree {
     // TODO 添加之后修复树结构
     private void fixInsert(Node node) {
         Node parent = node.getParent();
-        if (parent.isRed()) {     //只有当父节点是红色时，才需要进行修复
-            Node uncle = node.getUncle();
+        if (parent != null && parent.isRed()) {                               //父节点是否是红色，若是黑色，则不用修复结构
             Node ancestor = parent.getParent();
-            if (uncle != null && uncle.isRed()) {                    //叔叔节点是红色
-                parent.setColor(BLACK);
-                uncle.setColor(BLACK);
-                ancestor.setColor(RED);
-                fixInsert(ancestor);
-            } else {                                //叔叔节点是黑色的
-                if (node == parent.getRight()) {     //当前节点是父节点的右节点
-                    rotatingLeft(parent);
-                    fixInsert(parent);
-                } else {
+            if (ancestor == null) {
+                return;
+            } else {
+                Node uncle = getUncle(node);
+                if (uncle != null && uncle.isRed()) {
                     parent.setColor(BLACK);
+                    uncle.setColor(BLACK);
                     ancestor.setColor(RED);
-                    rotatingRight(ancestor);
-                    node.getRoot().setColor(BLACK);
+                    fixInsert(ancestor);                        //已祖父节点继续修复结构
+                } else {
+                    if (isBothSides(node)) {                    //一字型
+                        parent.setColor(BLACK);
+                        ancestor.setColor(RED);
+                        if (ancestor.getRight() == parent) {    //对祖父节点进行左旋
+                            rotatingLeft(ancestor);
+                        } else {
+                            rotatingRight(ancestor);            //对组件节点进行右旋
+                        }
+                    } else {                                    //之字形
+                        node.setColor(BLACK);
+                        ancestor.setColor(RED);
+                        if (parent.getLeft() == node) {         //右-左双旋
+                            rotatingRight(parent);
+                            rotatingLeft(ancestor);
+                        } else {                                //左-右双旋
+                            rotatingLeft(parent);
+                            rotatingRight(ancestor);
+                        }
+                    }
                 }
+                resetRoot(node);
             }
         }
     }
@@ -135,10 +152,22 @@ public class NodeTree {
 
         right.setParent(parent);
         right.setLeft(node);
+
         node.setParent(right);
         node.setRight(left);
 
-        return right;
+        if (parent != null) {
+            if (parent.getLeft() == node) {
+                parent.setLeft(right);
+            } else {
+                parent.setRight(right);
+            }
+        }
+
+        if (left != null) {
+            left.setParent(node);
+        }
+        return node;
     }
 
     /**
@@ -152,30 +181,117 @@ public class NodeTree {
 
         left.setParent(parent);
         left.setRight(node);
+
         node.setParent(left);
         node.setLeft(right);
 
-        return left;
+        if (parent != null) {
+            if (parent.getLeft() == node) {
+                parent.setLeft(right);
+            } else {
+                parent.setRight(right);
+            }
+        }
+
+        if (right != null) {
+            right.setParent(node);
+        }
+        return node;
+    }
+
+    private Node getUncle(Node node) {
+        Node parent = node.getParent();
+        Node ancestor = parent.getParent();
+        if (ancestor == null) {
+            return null;
+        } else {
+            if (ancestor.getLeft() == parent) {
+                return ancestor.getRight();
+            } else {
+                return ancestor.getLeft();
+            }
+        }
     }
 
     /**
-     * 转换颜色
+     * 判断节点node与其父节点和祖父节点是否成一字型
      * @param node
+     * @return true:一字型，false:之字型
      */
-    private void flipColors(Node node) {
-        node.setColor(RED);
-        Node left = node.getLeft();
-        if (left != null) {
-            left.setColor(BLACK);
+    private boolean isBothSides(Node node) {
+        Node parent = node.getParent();
+        Node ancestor = parent.getParent();
+        boolean left = ancestor.getLeft() == parent && parent.getLeft() == node;
+        boolean right = ancestor.getRight() == parent && parent.getRight() == node;
+        return left || right;
+    }
+
+    /**
+     * 前序遍历
+     * @return
+     */
+    public List<Node> preOrder() {
+        List<Node> list = new ArrayList<Node>(size.get());
+        preOrder(list, root);
+        return list;
+    }
+
+    /**
+     * 中序遍历
+     * @return
+     */
+    public List<Node> middleOrder() {
+        List<Node> list = new ArrayList<Node>(size.get());
+        middleOrder(list, root);
+        return list;
+    }
+
+    public List<Node> postOrder() {
+        List<Node> list = new ArrayList<Node>(size.get());
+        postOrder(list, root);
+        return list;
+    }
+
+    private void preOrder(List<Node> list, Node node) {
+        if (node != null) {
+            list.add(node);
+            middleOrder(list, node.getLeft());
+            middleOrder(list, node.getRight());
         }
-        Node right = node.getRight();
-        if (right != null) {
-            right.setColor(BLACK);
+    }
+
+    private void middleOrder(List<Node> list, Node node) {
+        if (node != null) {
+            middleOrder(list, node.getLeft());
+            list.add(node);
+            middleOrder(list, node.getRight());
+        }
+    }
+
+    private void postOrder(List<Node> list, Node node) {
+        if (node != null) {
+            middleOrder(list, node.getLeft());
+            middleOrder(list, node.getRight());
+            list.add(node);
         }
     }
 
     public int size() {
         return size.get();
+    }
+
+    public Node getRoot() {
+        return root;
+    }
+
+    private void resetRoot(Node node) {
+        Node p = node.getParent();
+        while (p != null) {
+            node = p;
+            p = node.getParent();
+        }
+        node.setColor(BLACK);
+        this.root = node;
     }
 
 }

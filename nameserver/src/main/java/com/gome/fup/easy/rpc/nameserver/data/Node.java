@@ -50,28 +50,6 @@ public class Node {
         this.parent = parent;
     }
 
-    public Node getUncle() {
-        if (parent != null) {
-            Node ancestor = parent.getParent();
-            if (ancestor != null) {
-                if (parent == ancestor.getLeft()) {
-                    return ancestor.getRight();
-                } else {
-                    return ancestor.getLeft();
-                }
-            }
-        }
-        return null;
-    }
-
-    public Node getRoot() {
-        if (parent != null) {
-            return parent.getRoot();
-        } else {
-            return this;
-        }
-    }
-
     public Node getLeft() {
         return left;
     }
