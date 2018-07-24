@@ -246,6 +246,10 @@ public class NodeTree {
         return list;
     }
 
+    /**
+     * 后序遍历
+     * @return
+     */
     public List<Node> postOrder() {
         List<Node> list = new ArrayList<Node>(size.get());
         postOrder(list, root);
