@@ -132,7 +132,7 @@ public class NodeTree {
                         }
                     }
                 }
-                resetRoot(node);
+                resetRoot();
             }
         }
     }
@@ -288,13 +288,11 @@ public class NodeTree {
         return root;
     }
 
-    private void resetRoot(Node node) {
-        Node p = node.getParent();
-        while (p != null) {
-            node = p;
-            p = node.getParent();
+    private void resetRoot() {
+        Node node = this.root;
+        while (node.getParent() != null) {
+            node = node.getParent();
         }
-        node.setColor(BLACK);
         this.root = node;
     }
 
