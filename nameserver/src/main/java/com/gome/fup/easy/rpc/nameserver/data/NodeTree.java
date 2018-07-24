@@ -255,8 +255,8 @@ public class NodeTree {
     private void preOrder(List<Node> list, Node node) {
         if (node != null) {
             list.add(node);
-            middleOrder(list, node.getLeft());
-            middleOrder(list, node.getRight());
+            preOrder(list, node.getLeft());
+            preOrder(list, node.getRight());
         }
     }
 
@@ -270,8 +270,8 @@ public class NodeTree {
 
     private void postOrder(List<Node> list, Node node) {
         if (node != null) {
-            middleOrder(list, node.getLeft());
-            middleOrder(list, node.getRight());
+            postOrder(list, node.getLeft());
+            postOrder(list, node.getRight());
             list.add(node);
         }
     }
