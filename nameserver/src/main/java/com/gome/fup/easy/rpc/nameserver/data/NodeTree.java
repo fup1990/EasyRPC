@@ -99,7 +99,9 @@ public class NodeTree {
             //根据二叉树特性，删除节点
             delete(node);
             // TODO 根据红黑树特性，修复结构
-
+            if (!node.isRed() && node != root) {
+                
+            }
             size.decrementAndGet();
             return node;
         }
