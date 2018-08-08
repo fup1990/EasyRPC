@@ -48,10 +48,14 @@ public class NodeTree {
     }
 
     public void put(long zxid, byte[] value) {
+        put(create(zxid, value));
+    }
+
+    private Node create(long zxid, byte[] value) {
         Node node = new Node();
         node.setZxid(zxid);
         node.setValue(value);
-        put(node);
+        return node;
     }
 
     public void put(Node node) {
@@ -89,15 +93,65 @@ public class NodeTree {
         }
     }
 
-    // TODO 删除节点
     public Node remove(long zxid) {
         Node node = get(zxid);
-        fixRemove(node);
-        size.decrementAndGet();
-        return node;
+        if (node != null) {
+            //根据二叉树特性，删除节点
+            delete(node);
+            // TODO 根据红黑树特性，修复结构
+
+            size.decrementAndGet();
+            return node;
+        }
+        return null;
     }
 
-    // TODO 添加之后修复树结构
+    private void delete(Node node) {
+        Node parent = node.getParent();
+        if (node.isLeaf()) {    //叶子节点，则直接删除
+            if (parent != null) {
+                if (parent.getLeft() == node) {
+                    parent.setLeft(null);
+                } else {
+                    parent.setRight(null);
+                }
+            }
+        } else {
+            if (node.getLeft() != null && node.getRight() != null) {    //有两个子节点
+                //获取右子树中最小的元素，并设置到node位置
+                Node n = node.getRight();
+                while (n.getLeft() != null) {
+                    n = n.getLeft();
+                }
+                Node newNode = create(n.getZxid(), n.getValue());
+                newNode.setColor(n.getColor());
+                newNode.setParent(parent);
+                newNode.setLeft(node.getLeft());
+                newNode.setRight(node.getRight());
+                if (parent.getLeft() == node) {
+                    parent.setLeft(newNode);
+                } else {
+                    parent.setRight(newNode);
+                }
+                //递归的删除n节点
+                delete(n);
+            } else {    //有一个子节点
+                Node child;
+                if (node.getLeft() != null) {
+                    child = node.getLeft();
+                } else {
+                    child = node.getRight();
+                }
+                if (parent.getLeft() == node) {
+                    parent.setLeft(child);
+                } else {
+                    parent.setRight(child);
+                }
+                child.setParent(parent);
+            }
+        }
+    }
+
     private void fixInsert(Node node) {
         Node parent = node.getParent();
         if (parent != null && parent.isRed()) {                               //父节点是否是红色，若是黑色，则不用修复结构
@@ -135,10 +189,6 @@ public class NodeTree {
                 resetRoot();
             }
         }
-    }
-
-    // TODO 删除之后修复树结构
-    private void fixRemove(Node node) {
     }
 
     /**
