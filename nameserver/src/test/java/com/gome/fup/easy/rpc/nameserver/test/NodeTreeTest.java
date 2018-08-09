@@ -20,6 +20,12 @@ public class NodeTreeTest {
         for (Node node : nodes) {
             System.out.println("id is : " + node.getZxid() + ", color is : " + node.getColor());
         }
+        System.out.println("=============================");
+        tree.remove(6);
+        List<Node> list = tree.preOrder();
+        for (Node node : list) {
+            System.out.println("id is : " + node.getZxid() + ", color is : " + node.getColor());
+        }
     }
 
 }
