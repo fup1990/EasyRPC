@@ -216,7 +216,33 @@ public class NodeTree {
                     brother.setColor(BLACK);
                     fixRemove(parent);
                 } else {
-
+                    if (left.isRed()) {
+                        if (isBothSides(left)) {
+                            if (brother == parent.getLeft()) {
+                                rotatingRight(brother);
+                            } else {
+                                rotatingLeft(brother);
+                            }
+                        } else {
+                            rotatingRight(left);
+                            left.setColor(BLACK);
+                            brother.setColor(RED);
+                            fixRemove(brother);
+                        }
+                    } else {
+                        if (isBothSides(right)) {
+                            if (brother == parent.getLeft()) {
+                                rotatingRight(brother);
+                            } else {
+                                rotatingLeft(brother);
+                            }
+                        } else {
+                            rotatingLeft(right);
+                            right.setColor(BLACK);
+                            brother.setColor(RED);
+                            fixRemove(brother);
+                        }
+                    }
                 }
             }
         }
