@@ -2,7 +2,6 @@ package com.gome.fup.easy.rpc.nameserver.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
