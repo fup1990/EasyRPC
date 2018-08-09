@@ -77,12 +77,4 @@ public class Node {
     public void setColor(boolean color) {
         this.color = color;
     }
-
-    boolean isLeaf(){
-        return left == null && right == null;
-    }
-
-    boolean isRoot(){
-        return parent == null;
-    }
 }

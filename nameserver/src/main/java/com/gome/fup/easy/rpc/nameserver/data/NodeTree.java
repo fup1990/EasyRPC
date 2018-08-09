@@ -2,6 +2,7 @@ package com.gome.fup.easy.rpc.nameserver.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -98,10 +99,7 @@ public class NodeTree {
         if (node != null) {
             //根据二叉树特性，删除节点
             delete(node);
-            // TODO 根据红黑树特性，修复结构
-            if (!node.isRed() && node != root) {
-                
-            }
+            fixRemove(node);
             size.decrementAndGet();
             return node;
         }
@@ -110,7 +108,7 @@ public class NodeTree {
 
     private void delete(Node node) {
         Node parent = node.getParent();
-        if (node.isLeaf()) {    //叶子节点，则直接删除
+        if (isLeaf(node)) {    //叶子节点，则直接删除
             if (parent != null) {
                 if (parent.getLeft() == node) {
                     parent.setLeft(null);
@@ -189,6 +187,31 @@ public class NodeTree {
                     }
                 }
                 resetRoot();
+            }
+        }
+    }
+
+    private void fixRemove(Node node) {
+        if (!node.isRed() && node != root) {
+            Node parent = node.getParent();
+            Node brother;
+            if (node == parent.getLeft()) {
+                brother = parent.getRight();
+            } else {
+                brother = parent.getLeft();
+            }
+            if (null != brother && brother.isRed()) {   //兄弟节点是红色的
+                if (brother == parent.getRight()) {
+                    rotatingLeft(parent);
+                } else {
+                    rotatingRight(parent);
+                }
+                brother.setColor(BLACK);
+                parent.setColor(RED);
+                fixRemove(node);
+            } else {
+                Node left = brother.getLeft();
+                Node right = brother.getRight();
             }
         }
     }
@@ -346,6 +369,10 @@ public class NodeTree {
             node = node.getParent();
         }
         this.root = node;
+    }
+
+    private boolean isLeaf(Node node){
+        return node.getLeft() == null && node.getRight() == null;
     }
 
 }
