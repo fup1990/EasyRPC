@@ -209,9 +209,15 @@ public class NodeTree {
                 brother.setColor(BLACK);
                 parent.setColor(RED);
                 fixRemove(node);
-            } else {
+            } else {                                    //兄弟节点是黑色的
                 Node left = brother.getLeft();
                 Node right = brother.getRight();
+                if (isBlack(left) && isBlack(right)) {  //兄弟节点的两个子节点都是黑色的
+                    brother.setColor(BLACK);
+                    fixRemove(parent);
+                } else {
+
+                }
             }
         }
     }
@@ -373,6 +379,10 @@ public class NodeTree {
 
     private boolean isLeaf(Node node){
         return node.getLeft() == null && node.getRight() == null;
+    }
+
+    private boolean isBlack(Node node) {
+        return null == node || !node.isRed();
     }
 
 }
