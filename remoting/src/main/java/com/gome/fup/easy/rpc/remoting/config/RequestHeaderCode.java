@@ -5,8 +5,8 @@ package com.gome.fup.easy.rpc.remoting.config;
  */
 public class RequestHeaderCode {
 
-    public static final int REGISTER_PROVIDER_CODE = 1;
+    public static final int NAME_SERVER_HANDLER_CODE = 1;
 
-    public static final int PULL_PROVIDER_CODE = 2;
+    public static final int NAME_SERVER_HA_CODE = 2;
 
 }

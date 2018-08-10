@@ -6,8 +6,14 @@ package com.gome.fup.easy.rpc.nameserver;
 public class NameServerStartup {
 
     public static void main(String[] args) {
-        NameServer server = new NameServer();
+        final NameServer server = new NameServer();
         server.start();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                server.shutdown();
+            }
+        });
     }
 
 }

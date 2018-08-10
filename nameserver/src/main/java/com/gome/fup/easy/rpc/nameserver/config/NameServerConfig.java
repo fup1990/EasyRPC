@@ -5,8 +5,10 @@ package com.gome.fup.easy.rpc.nameserver.config;
  */
 public class NameServerConfig {
 
-    public static final String LOG_PATh = "log";
+    public static final String LOG_PATh = "logs/";
 
-    public static final String SNAPLOG_PATH = "log/snaplog";
+    public static final String SNAP_LOG = "snaplog";
+
+    public static final String COMMIT_LOG = "logs/commitlog";
 
 }

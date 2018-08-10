@@ -1,8 +1,8 @@
 package com.gome.fup.easy.rpc.nameserver;
 
 import com.gome.fup.easy.rpc.nameserver.data.Database;
-import com.gome.fup.easy.rpc.nameserver.processor.PullProviderRequestProcessor;
-import com.gome.fup.easy.rpc.nameserver.processor.RegisterProviderRequestProcessor;
+import com.gome.fup.easy.rpc.nameserver.processor.HaRequestProcessor;
+import com.gome.fup.easy.rpc.nameserver.processor.HandlerRequestProcessor;
 import com.gome.fup.easy.rpc.remoting.RemotingServer;
 import com.gome.fup.easy.rpc.remoting.config.RequestHeaderCode;
 import com.gome.fup.easy.rpc.remoting.server.NettyRemotingServer;
@@ -26,9 +26,14 @@ public class NameServer {
         this.remotingServer.start();
     }
 
+    public void shutdown() {
+        this.remotingServer.shutdown();
+        this.database.shutdown();
+    }
+
     private void registerProcessor() {
-        this.remotingServer.registerProcessor(RequestHeaderCode.REGISTER_PROVIDER_CODE, new RegisterProviderRequestProcessor(this));
-        this.remotingServer.registerProcessor(RequestHeaderCode.PULL_PROVIDER_CODE, new PullProviderRequestProcessor());
+        this.remotingServer.registerProcessor(RequestHeaderCode.NAME_SERVER_HANDLER_CODE, new HandlerRequestProcessor());
+        this.remotingServer.registerProcessor(RequestHeaderCode.NAME_SERVER_HA_CODE, new HaRequestProcessor());
     }
 
     public Database getDatabase() {
