@@ -73,6 +73,7 @@
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
         </dependency>
+        <!-- test -->
     </dependencies>
 
 </project>
